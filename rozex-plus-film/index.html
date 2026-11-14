@@ -354,8 +354,7 @@ function buildPage() {
   const qR = 1380, qS = 190;
   const q1 = ATXT('Q1', qR, 400, qS, { k: 0.86 }, 0.12, 0.74);
   const q2 = ATXT('Q2', qR, 612, qS, { k: 0.86 }, 0.92, 0.52);
-  const [u0, u1] = q1.T.words[0];                               // «ترجع» is the line's first word on the left (visual)
-  const tw = q1.T.words.find(([a]) => a < (q1.T.left + q1.T.right) / 2) || q1.T.words[0];
+  const tw = q1.T.words[1];                                     // «ترجع»: the second word in reading order
   PEN([[tw[1] + 6, 448], [lerp(tw[0], tw[1], 0.5), 456], [tw[0] - 10, 450]], { layer: 'coral', w: 6.5, ta: 0.06, tb: 0.3, wob: 1.2, kind: 'pencil' }, 2.10, 0.20);
   CUE.under = 2.10;
 
@@ -389,13 +388,13 @@ function buildPage() {
   // bacteria inside the plug
   const BAC = [[946, 1226], [1006, 1236], [970, 1276], [1009, 1306], [952, 1336], [990, 1378], [975, 1432]].map(([x, y]) => [x, y, 12 + rnd(-1, 1.5)]);
   // construction (light, fast)
-  let t = 3.30;
+  let t = 3.22;
   PEN([[XL - 30, SY], [XR + 30, SY - 4]], { layer: 'light', w: 1.6, p: 0.5 }, t, 0.07);
   PEN([[PX0, SY - 110], [PX0 + 4, YB + 40]], { layer: 'light', w: 1.6, p: 0.5 }, t + 0.08, 0.07);
   PEN(ell(PX0, 1392, 272, 246, 0, 2.4, 2.4 + TAU * 1.03, 44), { layer: 'light', w: 1.6, p: 0.5, wob: 0.8 }, t + 0.16, 0.09);
   PEN([[XL, YB + 10], [XR, YB - 6]], { layer: 'light', w: 1.5, p: 0.45 }, t + 0.26, 0.06);
   // skin outline: surface (two strokes around the opening), epidermis line, bottom, section edges
-  t = 3.66;
+  t = 3.50;
   t = PEN(topW.filter(([x]) => x <= PX0 - 63), { w: 3.4, ta: 0.04, tb: 0.06 }, t, 0.13);
   t = PEN(topW.filter(([x]) => x >= PX0 + 63), { w: 3.4, ta: 0.04, tb: 0.06 }, t + 0.01, 0.11);
   t = PEN(epiLine.filter(([x]) => x < PX0 - 58), { w: 2.2, p: 0.8 }, t + 0.01, 0.07);
@@ -417,17 +416,17 @@ function buildPage() {
   BAC.forEach(([x, y, r]) => { t = circleStroke(x, y, r, { w: 2.2, turn: 1.1 }, t, 0.022); });
   // colour pass: skin, half the red halo, (note), the rest of the halo, oil, bacteria
   const haloCut = [haloP];
-  t = Math.max(t + 0.03, 4.62);
-  BLOB(epidermis, C.skin, { dx: 9, dy: 7, a: 0.92, ang: -1.45, sp: 16, cuts: haloCut.concat([funnelIn]) }, t, 0.16);
-  BLOB(epiLine.concat(epiLine.slice().reverse().map(([x, y]) => [x, y - 26])), C.skinDk, { dx: 12, dy: 8, a: 0.42, ang: -1.45, sp: 14, cuts: haloCut.concat([funnelIn]) }, t + 0.17, 0.05);
-  BLOB(dermis, C.skin, { dx: 9, dy: 7, a: 0.55, ang: -1.45, sp: 18, stop: 0.86, cuts: haloCut.concat([funnelIn]) }, t + 0.23, 0.14);
-  t = t + 0.39;
-  BLOB(halfL, C.halo, { dx: 9, dy: 7, a: 0.9, ang: -0.6, sp: 13, cuts: [funnelIn] }, t, 0.12);
-  CUE.haloHalf = t + 0.12;
+  t = Math.max(t + 0.01, 4.87);
+  BLOB(epidermis, C.skin, { dx: 9, dy: 7, a: 0.92, ang: -1.45, sp: 16, cuts: haloCut.concat([funnelIn]) }, t, 0.10);
+  BLOB(epiLine.concat(epiLine.slice().reverse().map(([x, y]) => [x, y - 26])), C.skinDk, { dx: 12, dy: 8, a: 0.42, ang: -1.45, sp: 14, cuts: haloCut.concat([funnelIn]) }, t + 0.11, 0.04);
+  BLOB(dermis, C.skin, { dx: 9, dy: 7, a: 0.55, ang: -1.45, sp: 18, stop: 0.86, cuts: haloCut.concat([funnelIn]) }, t + 0.155, 0.09);
+  t = t + 0.25;
+  BLOB(halfL, C.halo, { dx: 9, dy: 7, a: 0.9, ang: -0.6, sp: 13, cuts: [funnelIn] }, t, 0.07);
+  CUE.haloHalf = t + 0.07;
   // P1 «مسامة مسدودة» + pencil leader to the oil plug
-  const p1 = ATXT('P1', 1430, 862, 88, {}, 5.12, 0.30);
-  PEN(bez([1094, 838], [1040, 900], [1010, 1000], [998, 1168], 16), { w: 2.2, ta: 0.1, tb: 0.05, p: 0.85 }, 5.44, 0.08);
-  BLOB(halfR, C.halo, { dx: 9, dy: 7, a: 0.9, ang: -0.6, sp: 13, cuts: [funnelIn] }, 5.53, 0.08);
+  const p1 = ATXT('P1', 1430, 862, 88, {}, 5.21, 0.28);
+  PEN(bez([1094, 838], [1040, 900], [1010, 1000], [998, 1168], 16), { w: 2.2, ta: 0.1, tb: 0.05, p: 0.85 }, 5.50, 0.06);
+  BLOB(halfR, C.halo, { dx: 9, dy: 7, a: 0.9, ang: -0.6, sp: 13, cuts: [funnelIn] }, 5.565, 0.05);
   BLOB(ell(PX0, 1400, 150, 135, 0, 0, TAU, 40).map(([x, y]) => [x, Math.max(y, surf(x) + 5)]), C.haloDk, { dx: 12, dy: 9, a: 0.4, ang: -0.6, sp: 14, cuts: [funnelIn] }, 5.615, 0.03);
   BLOB(plug, C.oil, { dx: 6, dy: 5, a: 0.92, ang: -0.3, sp: 9, amp: 1.2 }, 5.645, 0.06);
   BAC.forEach(([x, y, r], i) => BLOB(ell(x, y, r, r, 0, 0, TAU, 16), C.bact, { dx: 4, dy: 3, a: 0.95, amp: 0.7, sp: 6 }, 5.71 + i * 0.006, 0.006));
