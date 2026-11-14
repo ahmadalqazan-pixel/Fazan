@@ -1,0 +1,25 @@
+Rozex Plus — «حبوبك ترجع كل شهر؟» (20 s, 1080×1920, Instagram Reel)
+Style: Tablet Sketch Explainer, from the Lemo-Opuscar library (github.com/lemomo-ai/lemo-opuscar). Made for Dermavia.
+
+No AI-generated images, no stock footage, no pasted photos: paper, pencil lines, colour blocks, the stylus, the skin
+section and the tube are drawn by the code in this folder. The tube was drawn using the client's own product photo
+(ref/rozex-plus-pack.png, Dermavia) as a drawing reference only; the photo does not appear in the film.
+
+FONTS (SIL Open Font License 1.1; licence texts in fonts/)
+- Aref Ruqaa (Regular, Bold) — The Aref Ruqaa Project Authors — https://github.com/google/fonts/tree/main/ofl/arefruqaa
+  Arabic lettering on the page; each line shaped with HarfBuzz (uharfbuzz, Apache-2.0) right to left before its
+  stroke skeleton was built (tools/glyphs.py).
+- Caveat Bold — The Caveat Project Authors — https://github.com/google/fonts/tree/main/ofl/caveat
+  (static 700 instance cut from the variable font with fontTools) — ingredient names, title, SPF line, phone number.
+
+MUSIC SAMPLES (played by the library's core/audio/sampler.py)
+- guitar_nylon (classical guitar), world_perc (egg shaker), kalimba: FreePats project (freepats.zenvoid.org), CC0 1.0
+- jazz_bass (Sneakybass double bass): Karoryfer Samples / sfzinstruments, CC0 1.0
+Original score (mix.py). Pencil, colouring, eraser, sheet-slide and chip sounds are synthesised by mix.py with the
+library's core/audio/sfx.py.
+
+NO VOICE, NO SUBTITLES (per the brief). All on-screen words are exactly those in TREATMENT.md §4.
+
+CONTENT
+- Product name, actives and "Azelaic Acid 20%" as printed on the pack; usage, sunscreen reminder and order line as
+  supplied in the brief. No other claims are made.
