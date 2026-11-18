@@ -51,3 +51,8 @@ npm run render                   # → out/dermavia-b3-anime.mp4
 
 ## برومبت جاهز تلصقه بـ Claude Code
 > هذا مجلد إعلان أنمي لسيروم ديرمافيا. اقرأ HANDOFF.md و sheet.md أول. شغل `npm install && npm run setup` وبعدها `npm run render` وتأكد إن الفيديو 20 ثانية. بعدها ساعدني أركب ملفات صوتي (vo1–vo5) على الأوقات المكتوبة وأطلع final.mp4، والتزم بكل القواعد بالملف.
+
+## نسخة v2 (موشن غرافيك، بدون حجي)
+- `v2/index.html`: تصميم جديد أبسط (كتابة كبيرة + أشكال)، هوك من أول فريم، والقطرة تنزل على دروب الموسيقى (10.7 ث).
+- `npm run render:v2`: يطلع `out/dermavia-b3-v2.mp4`، و`./sfx.sh` يضيف ضربات مصنّعة على الموسيقى، وبعدين:
+  `VIDEO=out/dermavia-b3-v2.mp4 ./mix.sh --music-only music/music_v2.wav`

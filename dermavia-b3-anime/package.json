@@ -1,3 +1,3 @@
 { "name": "dermavia-b3-anime", "private": true, "type": "module",
-  "scripts": { "setup": "npx playwright install chromium", "mix": "./mix.sh", "render": "node render.mjs \"$PWD/index.html\" out/dermavia-b3-anime.mp4" },
+  "scripts": { "setup": "npx playwright install chromium", "mix": "./mix.sh", "render:v2": "node render.mjs \"$PWD/v2/index.html\" out/dermavia-b3-v2.mp4", "render": "node render.mjs \"$PWD/index.html\" out/dermavia-b3-anime.mp4" },
   "dependencies": { "playwright": "^1.48.0" } }

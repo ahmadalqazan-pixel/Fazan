@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ar"><head><meta charset="utf-8"><title>Dermavia B3 · v2</title>
+<style>
+@font-face{font-family:'AR';src:url(../source/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2);font-weight:700;unicode-range:U+0600-06FF,U+FB50-FDFF,U+FE70-FEFF,U+2026,U+060C}
+@font-face{font-family:'AR';src:url(../source/fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2);font-weight:500;unicode-range:U+0600-06FF,U+FB50-FDFF,U+FE70-FEFF,U+2026,U+060C}
+@font-face{font-family:'AR';src:url(../source/fonts/ibm-plex-sans-arabic-latin-500-normal.woff2);font-weight:500;unicode-range:U+0000-024F}
+@font-face{font-family:'AR';src:url(../source/fonts/ibm-plex-sans-arabic-latin-500-normal.woff2);font-weight:700;unicode-range:U+0000-024F}
+@font-face{font-family:'BC';src:url(../source/fonts/barlow-condensed-latin-500-normal.woff2);font-weight:500}
+html,body{margin:0;background:#0E1420;overflow:hidden}canvas{display:block;max-height:100vh;margin:auto}
+</style></head><body><canvas id="cv" width="1080" height="1920"></canvas>
+<script>
+// Dermavia B3 — v2 motion-graphics cut. 1080×1920, 20 s. Every frame is a pure function of t.
+// Beat map (music/music_a.mp3): soft until 10.7 s drop; hits at 11.9, 13.4, 14.7, 16.0, 17.3, 18.7.
+(async () => {
+const W = 1080, H = 1920, SAFE = 1536;              // bottom 20% stays empty
+const P = { night:'#0E1420', skin:'#D8A47F', accent:'#2FA062', navy:'#212C51', light:'#F7F5F0', shadow:'#2A1E2E',
+  skinSh:'#B9845F', skinHi:'#E9C2A2', accentHi:'#7FD3A2', navyHi:'#2E3B6B', navySh:'#18203D' };
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const PACK = new Image(); PACK.src = '../source/assets/serum_packshot.png'; await PACK.decode();
+await Promise.all(['700 60px AR','500 40px AR','500 40px BC'].map(f => document.fonts.load(f, 'الجلد الميت B3 0774؟…')));
+
+// ---------- helpers
+const clamp = (x,a=0,b=1) => Math.min(b, Math.max(a, x));
+const seg = (t,a,b) => clamp((t-a)/(b-a));
+const eo = x => 1 - Math.pow(1-x, 3);
+const eio = x => x<.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2;
+const back = x => { const c=1.9; return 1 + (c+1)*Math.pow(x-1,3) + c*Math.pow(x-1,2); };
+const lerp = (a,b,x) => a + (b-a)*x;
+function rng(s){ return () => { s|=0; s=s+0x6D2B79F5|0; let t=Math.imul(s^s>>>15,1|s); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const shake = (t,t0,d=0.3,amp=22) => { const k=seg(t,t0,t0+d); if(k<=0||k>=1) return [0,0]; const f=(1-k)*amp; return [Math.sin(t*173)*f, Math.cos(t*131)*f]; };
+const slamS = (t,t0,from=1.7,d=0.16) => t<t0 ? 0 : lerp(from,1,eo(seg(t,t0,t0+d)));   // 0 = hidden
+
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); }
+function bg(c){ ctx.fillStyle=c; ctx.fillRect(0,0,W,H); }
+function glow(x,y,r,c,a){ const g=ctx.createRadialGradient(x,y,0,x,y,r); g.addColorStop(0,c); g.addColorStop(1,'rgba(0,0,0,0)'); ctx.save(); ctx.globalAlpha=a; ctx.fillStyle=g; ctx.fillRect(x-r,y-r,2*r,2*r); ctx.restore(); }
+// Arabic/Latin text, centred, auto-fit to maxW. o: {font,w,color,plate,pad,stroke,scale,alpha}
+function txt(s,x,y,size,o={}){
+  const sc=o.scale??1; if(sc<=0||(o.alpha??1)<=0.01) return;
+  ctx.save(); ctx.globalAlpha=o.alpha??1; ctx.translate(x,y); ctx.scale(sc,sc);
+  const fam=o.font||'AR', w=o.w||700; let fs=size;
+  ctx.font=`${fam==='BC'?500:w} ${fs}px ${fam}`; ctx.direction=fam==='BC'?'ltr':'rtl'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  const maxW=o.maxW||960; let tw=ctx.measureText(s).width; if(tw>maxW){ fs=fs*maxW/tw; ctx.font=`${fam==='BC'?500:w} ${fs}px ${fam}`; tw=ctx.measureText(s).width; }
+  if(o.plate){ const p=o.pad??0.42; const ph=fs*1.55; ctx.fillStyle=o.plate; rr(-tw/2-fs*p,-ph/2,tw+2*fs*p,ph,ph*0.28); ctx.fill(); }
+  if(o.stroke){ ctx.lineJoin='round'; ctx.lineWidth=fs*0.14; ctx.strokeStyle=o.stroke; ctx.strokeText(s,0,fs*0.06); }
+  ctx.fillStyle=o.color||P.light; ctx.fillText(s,0,fs*0.06); ctx.restore();
+}
+// catalog packshot: scale + position only, never recoloured
+function pack(cx,top,w){ const h=w*PACK.height/PACK.width; ctx.drawImage(PACK,cx-w/2,top,w,h); return h; }
+
+// ---------- static seeded data
+const R1=rng(11), PORES=[]; for(let i=0;i<70;i++){ const x=R1()*W, y=R1()*1500, big=R1()<0.35; PORES.push({x,y,r:big?14+R1()*16:5+R1()*6,big,fl:R1()}); }
+const R2=rng(5), FLAKES=[]; for(let i=0;i<34;i++){ const a=R2()*Math.PI*2, d=Math.sqrt(R2())*250; FLAKES.push({x:540+Math.cos(a)*d,y:820+Math.sin(a)*d,s:16+R2()*26,rot:R2()*3,vy:-(300+R2()*500),vx:(R2()-.5)*500}); }
+const ING=['سالسليك','أزيليك','زنك','نياسيناميد'];
+
+// ---------- scenes
+function sHook(t){   // 0–2.4  macro skin, zero lead-in, two slams
+  const z = 1.12 + 0.18*t/2.4 + 0.35*Math.max(0,1-t/0.14) + 0.12*Math.max(0,1-(t-1.15)/0.12)*(t>1.15);
+  const [sx,sy]=[...shake(t,0,0.25,26)].map((v,i)=>v+shake(t,1.15,0.25,22)[i]);
+  ctx.save(); ctx.translate(540+sx,760+sy); ctx.scale(z,z); ctx.translate(-540,-760);
+  const g=ctx.createRadialGradient(540,700,80,540,760,1100); g.addColorStop(0,P.skinHi); g.addColorStop(.55,P.skin); g.addColorStop(1,P.skinSh); ctx.fillStyle=g; ctx.fillRect(-200,-200,W+400,H+400);
+  for(const p of PORES){
+    ctx.fillStyle='rgba(185,132,95,0.55)'; ctx.beginPath(); ctx.ellipse(p.x,p.y,p.r*1.7,p.r*1.35,0,0,7); ctx.fill();
+    ctx.fillStyle=p.big?P.shadow:P.skinSh; ctx.beginPath(); ctx.ellipse(p.x,p.y,p.r,p.r*0.82,0,0,7); ctx.fill();
+    if(p.big){ ctx.fillStyle='rgba(247,245,240,0.35)'; ctx.beginPath(); ctx.ellipse(p.x-p.r*.3,p.y-p.r*.35,p.r*.28,p.r*.18,-.5,0,7); ctx.fill();
+      if(p.fl>.4){ ctx.fillStyle='rgba(247,245,240,0.55)'; ctx.beginPath(); ctx.ellipse(p.x+p.r*1.2,p.y+p.r*.6,p.r*.7,p.r*.3,.6,0,7); ctx.fill(); } }
+  }
+  ctx.restore();
+  const v=ctx.createRadialGradient(540,800,350,540,800,1250); v.addColorStop(0,'rgba(14,20,32,0)'); v.addColorStop(1,'rgba(14,20,32,0.85)'); ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(14,20,32,0.92)'; ctx.fillRect(0,SAFE,W,H-SAFE);
+  txt('الرأس الأسود…',540+sx,560+sy,150,{plate:P.night,scale:slamS(t,0,1.15,0.1),maxW:760});
+  txt('من الجلد الميت',540+sx,800+sy,120,{plate:P.accent,scale:slamS(t,1.15,1.5,0.12),maxW:860});
+}
+function sSolution(t){ // 2.4–5.0  sweep dead skin, protect living
+  const u=t-2.4; bg(P.night); glow(540,820,560,P.navyHi,0.9);
+  txt('فالحل:',540,300,80,{color:P.accentHi,scale:slamS(u,0,1.4)});
+  // skin patch
+  ctx.save(); ctx.beginPath(); ctx.arc(540,820,300,0,7); ctx.clip();
+  const g=ctx.createRadialGradient(470,740,40,540,820,320); g.addColorStop(0,P.skinHi); g.addColorStop(1,P.skin); ctx.fillStyle=g; ctx.fillRect(200,480,700,700);
+  const sweep = lerp(900,180,eio(seg(u,0.45,1.25)));                    // green line travels right→left
+  for(const f of FLAKES){ const gone=f.x>sweep; const k=gone?seg(u,0.45+(900-f.x)/700*0.8,1.6):0;
+    ctx.save(); ctx.globalAlpha=1-k; ctx.translate(f.x+f.vx*k*0.6,f.y+f.vy*k*0.6); ctx.rotate(f.rot+k*4); ctx.fillStyle='#C9C3BA'; rr(-f.s/2,-f.s/3,f.s,f.s*0.66,6); ctx.fill(); ctx.restore(); }
+  if(u>0.45&&u<1.3){ ctx.fillStyle=P.accentHi; ctx.fillRect(sweep-6,480,12,700); glow(sweep,820,160,P.accent,0.7); }
+  ctx.restore();
+  const prot=eo(seg(u,1.55,1.9)); if(prot>0){ ctx.save(); ctx.lineWidth=18; ctx.strokeStyle=P.accent; ctx.globalAlpha=prot; ctx.beginPath(); ctx.arc(540,820,300+30*prot,0,7); ctx.stroke();
+    ctx.lineWidth=6; ctx.globalAlpha=prot*(1-seg(u,1.55,2.4)); ctx.beginPath(); ctx.arc(540,820,330+200*seg(u,1.55,2.4),0,7); ctx.stroke(); ctx.restore(); glow(540,820,420,P.accent,0.25*prot); }
+  const [sx,sy]=shake(t,2.4+1.55,0.2,12);
+  if(u<1.55) txt('تشيل الميت…',540,1300,110,{scale:slamS(u,0.45,1.6)});
+  else txt('وتحمي الحي.',540+sx,1300+sy,110,{color:P.accentHi,scale:slamS(u,1.55,1.6)});
+}
+function sProduct(t){  // 5.0–7.6 pack reveal
+  const u=t-5.0; bg(P.navy); glow(540,820,700,P.navyHi,1);
+  ctx.save(); ctx.globalAlpha=0.07; txt('B3',540,820+40*Math.sin(u),900,{font:'BC',color:P.light,maxW:2000}); ctx.restore();
+  const y=lerp(1920,330,back(seg(u,0,0.55))) - 12*u;
+  ctx.save(); ctx.globalAlpha=0.35; ctx.fillStyle=P.navySh; ctx.beginPath(); ctx.ellipse(540,y+1000,330,40,0,0,7); ctx.fill(); ctx.restore();
+  pack(540,y,740);
+  txt('Azelaic & Salicylic – B3',540,220,64,{font:'BC',plate:P.accent,scale:slamS(u,0.45,1.5)});
+  txt('من داخل عيادة ديرمافيا',540,1450,52,{w:500,alpha:seg(u,0.9,1.2),color:P.light});
+}
+function dropShape(x,y,r,stretch){ ctx.beginPath(); ctx.moveTo(x,y-r*1.6*stretch); ctx.bezierCurveTo(x+r*0.6,y-r*0.7*stretch,x+r,y-r*0.1,x+r,y+r*0.35); ctx.arc(x,y+r*0.35,r,0,Math.PI); ctx.bezierCurveTo(x-r,y-r*0.1,x-r*0.6,y-r*0.7*stretch,x,y-r*1.6*stretch); }
+function sBuild(t){    // 7.6–10.7 drop charges with the four ingredients, falls on the drop
+  const u=t-7.6, z=1+0.12*seg(u,0,3.1); bg(P.night);
+  ctx.save(); ctx.translate(540,700); ctx.scale(z,z); ctx.translate(-540,-700);
+  glow(540,560,520,P.navyHi,0.9);
+  // dropper tip (simple glass)
+  ctx.fillStyle=P.navyHi; rr(470,-40,140,300,30); ctx.fill(); ctx.fillStyle='rgba(247,245,240,0.85)'; ctx.beginPath(); ctx.moveTo(500,250); ctx.lineTo(580,250); ctx.lineTo(556,380); ctx.lineTo(524,380); ctx.closePath(); ctx.fill();
+  const fall=seg(t,10.45,10.7), grow=eo(seg(u,0.1,2.6)), r=22+48*grow+4*Math.sin(u*9)*grow;
+  const dy=420+r*0.6+lerp(0,640,fall*fall), full=seg(u,0.4,2.9);
+  glow(540,dy,r*3.2,P.accent,0.25+0.45*full);
+  const dg=ctx.createRadialGradient(525,dy-r*.3,4,540,dy,r*1.4); dg.addColorStop(0,'#E6F6EC'); dg.addColorStop(1,full>0.5?P.accent:P.accentHi);
+  ctx.fillStyle=dg; dropShape(540,dy,r,1+fall*0.6); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.ellipse(540-r*.35,dy-r*.1,r*.16,r*.3,.3,0,7); ctx.fill();
+  // ingredient chips orbit, then get pulled into the drop
+  ING.forEach((s,i)=>{ const t0=8.0+i*0.6; if(t<t0) return; const a=-Math.PI/2+i*Math.PI/2+0.4*(t-8);
+    const pull=eio(seg(t,10.1,10.45)), d=lerp(330,0,pull), x=540+Math.cos(a)*d, y=560+Math.sin(a)*d*0.85+lerp(0,dy-560,pull);
+    txt(s,x,y,52,{plate:P.navy,color:P.accentHi,scale:slamS(t,t0,1.6)*(1-pull*0.85),alpha:1-pull*0.9}); });
+  ctx.restore();
+  // skin target
+  ctx.save(); ctx.beginPath(); ctx.rect(0,0,W,SAFE); ctx.clip(); const sg=ctx.createRadialGradient(540,1250,40,540,1900,760); sg.addColorStop(0,P.skinHi); sg.addColorStop(.5,P.skin); sg.addColorStop(1,P.skinSh); ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(540,1940,760,0,7); ctx.fill(); ctx.restore();
+  ctx.fillStyle=P.night; ctx.fillRect(0,SAFE,W,H-SAFE);
+}
+function sImpact(t){   // 10.7–13.0 ★ drop hits, 4 names burst
+  const u=t-10.7; const [sx,sy]=shake(t,10.7,0.3,30);
+  if(u<0.125){ bg(P.accent); return; }                                 // 3-frame colour dip
+  bg(P.night); glow(540,900,700,P.accent,0.35*(1-seg(u,0,2)));
+  ctx.save(); ctx.translate(sx,sy);
+  for(let k=0;k<3;k++){ const q=seg(u,0.05+k*0.12,0.9+k*0.12); if(q<=0||q>=1) continue; ctx.strokeStyle=k?P.accent:P.accentHi; ctx.lineWidth=22*(1-q)+2; ctx.globalAlpha=1-q; ctx.beginPath(); ctx.ellipse(540,900,80+780*eo(q),30+300*eo(q),0,0,7); ctx.stroke(); }
+  ctx.globalAlpha=1;
+  const grid=[[300,820],[780,820],[300,1010],[780,1010]];
+  ING.forEach((s,i)=>{ const t0=0.08+i*0.07, k=back(seg(u,t0,t0+0.4)); const [gx,gy]=grid[i];
+    txt(s,lerp(540,gx,k),lerp(900,gy,k),62,{plate:i%3?P.navy:P.accent,color:P.light,scale:clamp(seg(u,t0,t0+0.05)),maxW:430}); });
+  txt('أربعة بعبوة وحدة.',540,420,112,{scale:slamS(u,0.15,1.8),maxW:960});
+  // second hit at 11.9: heading pulses
+  ctx.restore();
+}
+function sun(x,y,r,a){ ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.fillStyle=P.skin; for(let i=0;i<12;i++){ ctx.rotate(Math.PI/6); rr(-9,r+16,18,46,9); ctx.fill(); } ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.fill(); ctx.restore(); }
+function sRoutine(t){  // 13.0–15.5 light, fresh
+  const u=t-13.0; bg(P.light);
+  txt('مرة أو مرتين باليوم',540,330,100,{color:P.navy,scale:slamS(u,0,1.6)});
+  // 1× and 2× chips light on beats
+  [['1×',13.05],['2×',13.4]].forEach(([s,t0],i)=>{ const x=i?710:370, k=back(seg(t,t0,t0+0.3)); if(t<t0) return;
+    ctx.save(); ctx.translate(x,660); ctx.scale(k,k); ctx.fillStyle=i?P.accent:P.navy; rr(-140,-110,280,220,60); ctx.fill(); ctx.restore();
+    txt(s,x,665,150*k,{font:'BC',color:P.light}); });
+  const su=seg(t,14.2,14.7); if(su>0){ const y=lerp(1500,1020,back(su)); ctx.save(); ctx.beginPath(); ctx.rect(0,0,W,1240); ctx.clip(); sun(540,y,120,t*0.6); ctx.restore();
+    ctx.fillStyle=P.navy; ctx.fillRect(140,1236,800,8); }
+  txt('وواقي شمس بالنهار',540,1380,96,{color:P.light,plate:P.navy,scale:slamS(t,14.7,1.7)});
+}
+function sAsk(t){      // 15.5–17.3 question → message
+  const u=t-15.5; bg(P.night); glow(540,900,600,P.navyHi,0.8);
+  txt('ما تعرف إذا يناسبك؟',540,360,104,{scale:slamS(u,0,1.7)});
+  // chat panel
+  ctx.fillStyle=P.navy; rr(150,560,780,640,56); ctx.fill();
+  if(t<16.0){ for(let i=0;i<3;i++){ const b=0.5+0.5*Math.sin(t*14-i*1.1); ctx.fillStyle=`rgba(247,245,240,${0.35+0.5*b})`; ctx.beginPath(); ctx.arc(460+i*80,880,22,0,7); ctx.fill(); } }
+  else { const k=back(seg(t,16.0,16.3)); ctx.save(); ctx.translate(540,880); ctx.scale(k,k);
+    ctx.fillStyle=P.accent; rr(-330,-95,660,190,50); ctx.fill(); ctx.beginPath(); ctx.moveTo(250,80); ctx.lineTo(320,140); ctx.lineTo(200,90); ctx.fill(); ctx.restore();
+    txt('دز نوع بشرتك',540,880,92*k,{color:P.light});
+    txt('✓✓',800,1110,46,{font:'BC',color:P.accentHi,alpha:seg(t,16.5,16.6)}); }
+  txt('واتساب',540,1340,58,{w:500,color:P.accentHi,alpha:seg(t,16.2,16.5)});
+}
+function sEnd(t){      // 17.3–20 end card
+  const u=t-17.3; if(u<0.083){ bg(P.accent); return; }
+  bg(P.night); glow(540,560,620,P.accent,0.28); glow(540,560,420,P.navyHi,0.9);
+  const k=back(seg(u,0.08,0.5)); pack(540,lerp(260,150,k),lerp(480,560,k));
+  txt('استشارة صيدلاني مجانية',540,1010,80,{scale:slamS(u,0.2,1.5)});
+  const pulse=1+0.1*Math.max(0,1-(t-18.7)/0.25)*(t>18.7);
+  txt('0774 105 0454',540,1185,128*pulse,{font:'BC',color:P.accentHi,scale:slamS(u,0.1,1.6)});
+  txt('واتساب · جرب على منطقة صغيرة أول',540,1340,42,{w:500,color:P.light,alpha:0.85*seg(u,0.6,0.9)});
+}
+const SCENES=[[0,2.4,sHook],[2.4,5.0,sSolution],[5.0,7.6,sProduct],[7.6,10.7,sBuild],[10.7,13.0,sImpact],[13.0,15.5,sRoutine],[15.5,17.3,sAsk],[17.3,20,sEnd]];
+function draw(t){ ctx.setTransform(1,0,0,1,0,0); for(const [a,b,f] of SCENES) if(t>=a&&t<b){ f(t); return; } sEnd(19.999); }
+window.DURATION=20; window.seek=t=>draw(t);
+if(!location.search.includes('render')){ const st=performance.now(); const loop=()=>{ draw(((performance.now()-st)/1000)%20); requestAnimationFrame(loop); }; loop(); } else draw(0);
+window.READY=true;
+})();
+</script></body></html>
