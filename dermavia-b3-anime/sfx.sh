@@ -13,8 +13,16 @@ g click  "anoisesrc=d=0.02:c=white:r=$SR" "highpass=f=3000,afade=t=out:d=0.02,vo
 g riser  "aevalsrc='0.35*(t/2.4)*sin(2*PI*(70*t+70*t*t))*(0.75+0.25*sin(2*PI*(4+3*t)*t))':s=$SR:d=2.4"
 g crash  "anoisesrc=d=1.6:c=pink:r=$SR" "lowpass=f=5000,afade=t=out:d=1.6:curve=exp,volume=0.6"
 g thud   "aevalsrc='sin(2*PI*(60+50*exp(-t*25))*t)*exp(-t*12)':s=$SR:d=0.5"
+g heart  "aevalsrc='0.9*sin(2*PI*(85+45*exp(-t*30))*t)*exp(-t*14)+0.6*gt(t,0.15)*sin(2*PI*(105+45*exp(-(t-0.15)*30))*(t-0.15))*exp(-(t-0.15)*16)':s=$SR:d=0.6" "lowpass=f=700"
+# heartbeat bed: steady in the hook, speeds up into the drop, gap before impact, steady after, stops before the last ping
+HEART=$(awk 'BEGIN{
+  t=0.40; while(t<6.4){ printf "heart %.3f 0.55\n", t; t+=0.75 }
+  t=6.45; i=0.62; while(t<8.5){ printf "heart %.3f 0.65\n", t; t+=i; i=(i>0.26)?i*0.86:0.26 }
+  t=9.70; while(t<14.4){ printf "heart %.3f 0.45\n", t; t+=0.6 }
+  t=14.95; while(t<17.0){ printf "heart %.3f 0.4\n", t; t+=0.8 } }')
 # name start gain
-CUES="boom 0.00 1.0
+CUES="$HEART
+boom 0.00 1.0
 snap 0.00 0.9
 boom 1.055 0.9
 snap 1.055 0.8
