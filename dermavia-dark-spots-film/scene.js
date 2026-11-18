@@ -166,11 +166,11 @@ const PL = {
 const sealX = { c: sealCanvas('x') }, sealD = sealCanvas('d');
 const HK = 100 / 200, BK = 84 / 170, EK = 76 / 160;
 const R_ = {
-  hookA: plateRect(PL.hookA, 7.5 * DEG, 30 * DEG, HK, FACE_PITCH, 50), hookB: plateRect(PL.hookB, 7.5 * DEG, 24 * DEG, HK, FACE_PITCH, 50),
-  boardA: plateRect(PL.boardA, 7.5 * DEG, 29 * DEG, BK, FACE_PITCH, 50), boardB: plateRect(PL.boardB, 7.5 * DEG, 23.6 * DEG, BK, FACE_PITCH, 50),
-  endA: plateRect(PL.endA, 9 * DEG, 38 * DEG, EK, END_PITCH, 50), endB: plateRect(PL.endB, 9 * DEG, 32.6 * DEG, EK, END_PITCH, 50), endC: plateRect(PL.endC, 9 * DEG, 27.4 * DEG, EK, END_PITCH, 50),
+  hookA: plateRect(PL.hookA, 7.5 * DEG, 27 * DEG, HK, FACE_PITCH, 50), hookB: plateRect(PL.hookB, 7.5 * DEG, 21 * DEG, HK, FACE_PITCH, 50),
+  boardA: plateRect(PL.boardA, 7.5 * DEG, 26 * DEG, BK, FACE_PITCH, 50), boardB: plateRect(PL.boardB, 7.5 * DEG, 20.6 * DEG, BK, FACE_PITCH, 50),
+  endA: plateRect(PL.endA, 9 * DEG, 35 * DEG, EK, END_PITCH, 50), endB: plateRect(PL.endB, 9 * DEG, 29.6 * DEG, EK, END_PITCH, 50), endC: plateRect(PL.endC, 9 * DEG, 24.4 * DEG, EK, END_PITCH, 50),
 };
-R_.sealX = plateRect(sealX, R_.hookA.x - .8 * DEG, 30.4 * DEG, 140 / 512, FACE_PITCH, 50);
+R_.sealX = plateRect(sealX, R_.hookA.x - .8 * DEG, 27.4 * DEG, 140 / 512, FACE_PITCH, 50);
 const SLOT = { hookA: 0, hookB: 1, sealX: 2, boardA: 3, boardB: 4, endA: 5, endB: 6, endC: 7 };
 for (const [k, s] of Object.entries(SLOT)) {
   skyMat.uniforms['tP' + s].value = canvasTex(k === 'sealX' ? sealX.c : PL[k].c, true);
