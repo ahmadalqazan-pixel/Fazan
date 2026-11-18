@@ -9,7 +9,7 @@ VIDEO=${VIDEO:-out/dermavia-b3-anime.mp4}
 NOVO=0; [ "${1:-}" = "--music-only" ] && { NOVO=1; shift; }
 MUSIC=${1:-}
 STARTS=(3.5 7.9 10.0 15.0 17.5)   # vo1..vo5, seconds
-DUR=20
+DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$VIDEO" 2>/dev/null | awk '{printf "%.3f", $1}')
 
 [ -f "$VIDEO" ] || { echo "missing $VIDEO — run: npm run render"; exit 1; }
 
@@ -45,7 +45,7 @@ filters+=("${labels}amix=inputs=5:normalize=0,apad,atrim=0:${DUR}[voice]")
 
 if [ -n "$MUSIC" ]; then
   inputs+=(-i "$MUSIC")
-  filters+=("[5:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=-10dB,apad,atrim=0:${DUR},afade=t=out:st=$((DUR-1)):d=1[mus]")
+  filters+=("[5:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=-10dB,apad,atrim=0:${DUR},afade=t=out:st=$(awk "BEGIN{print $DUR-1}"):d=1[mus]")
   filters+=("[voice][mus]amix=inputs=2:normalize=0[pre]")
 else
   filters+=("[voice]anull[pre]")

@@ -1,24 +1,68 @@
 #!/usr/bin/env bash
-# Synthesised hits for v2 (no credits): boom = 55→35 Hz sine with fast decay + click; whoosh = filtered noise swell.
-# Writes music/music_v2.wav = music_a + hits at the cut points. Usage: ./sfx.sh
-set -euo pipefail; cd "$(dirname "$0")"; mkdir -p music/sfx
-ffmpeg -y -loglevel error -f lavfi -i "aevalsrc='sin(2*PI*(35+30*exp(-t*18))*t)*exp(-t*6)+0.4*(random(0)*2-1)*exp(-t*90)':s=48000:d=0.9" -ac 2 music/sfx/boom.wav
-ffmpeg -y -loglevel error -f lavfi -i "anoisesrc=d=0.5:c=pink:r=48000" -af "highpass=f=800,lowpass=f=6000,afade=t=in:d=0.45:curve=exp,afade=t=out:st=0.45:d=0.05,volume=0.6" -ac 2 music/sfx/whoosh.wav
-ffmpeg -y -loglevel error -f lavfi -i "aevalsrc='0.5*sin(2*PI*1760*t)*exp(-t*9)+0.3*sin(2*PI*2640*t)*exp(-t*12)':s=48000:d=0.6" -ac 2 music/sfx/ping.wav
-# file  start(s)  gain
-HITS="boom 0.00 1.0
-boom 1.15 0.85
-whoosh 2.95 0.6
-ping 3.95 0.5
-boom 5.00 0.55
-whoosh 10.2 0.9
-boom 10.70 1.0
-boom 17.30 0.6
-ping 17.45 0.45"
-in=(-i music/music_a.mp3); f=""; lab="[m]"; n=1
-f+="[0:a]aformat=sample_rates=48000:channel_layouts=stereo[m];"
-while read name st g; do ms=$(awk "BEGIN{print int($st*1000)}")
-  in+=(-i music/sfx/$name.wav); f+="[$n:a]volume=$g,adelay=${ms}|${ms}[h$n];"; lab+="[h$n]"; n=$((n+1)); done <<< "$HITS"
-f+="${lab}amix=inputs=$n:normalize=0,atrim=0:20[o]"
-ffmpeg -y -loglevel error "${in[@]}" -filter_complex "$f" -map "[o]" music/music_v2.wav
-echo wrote music/music_v2.wav
+# Sound design for v2 — synthesised with ffmpeg, no music, no credits. Writes music/sfx_v2.wav (length of the v2 render).
+# Cue times follow the v2 cut (see S[] in v2/index.html). Usage: ./sfx.sh
+set -euo pipefail; cd "$(dirname "$0")"; D=music/sfx; mkdir -p $D
+SR=48000; g(){ ffmpeg -y -loglevel error -f lavfi -i "$2" ${3:+-af "$3"} -ac 2 -ar $SR $D/$1.wav; }
+g boom   "aevalsrc='sin(2*PI*(38+40*exp(-t*16))*t)*exp(-t*5)':s=$SR:d=1.0"
+g snap   "anoisesrc=d=0.08:c=white:r=$SR" "highpass=f=2500,afade=t=out:d=0.08,volume=0.8"
+g whoosh "anoisesrc=d=0.32:c=pink:r=$SR" "highpass=f=500,lowpass=f=7000,afade=t=in:d=0.2:curve=exp,afade=t=out:st=0.2:d=0.12"
+g swish  "anoisesrc=d=0.7:c=white:r=$SR" "bandpass=f=3500:w=2500,afade=t=in:d=0.3,afade=t=out:st=0.3:d=0.4,volume=0.5"
+g ping   "aevalsrc='0.5*sin(2*PI*1760*t)*exp(-t*7)+0.3*sin(2*PI*2640*t)*exp(-t*10)':s=$SR:d=0.9"
+g pop    "aevalsrc='0.8*sin(2*PI*(500*t+2600*t*t))*exp(-t*35)':s=$SR:d=0.15"
+g click  "anoisesrc=d=0.02:c=white:r=$SR" "highpass=f=3000,afade=t=out:d=0.02,volume=0.5"
+g riser  "aevalsrc='0.35*(t/2.4)*sin(2*PI*(70*t+70*t*t))*(0.75+0.25*sin(2*PI*(4+3*t)*t))':s=$SR:d=2.4"
+g crash  "anoisesrc=d=1.6:c=pink:r=$SR" "lowpass=f=5000,afade=t=out:d=1.6:curve=exp,volume=0.6"
+g thud   "aevalsrc='sin(2*PI*(60+50*exp(-t*25))*t)*exp(-t*12)':s=$SR:d=0.5"
+# name start gain
+CUES="boom 0.00 1.0
+snap 0.00 0.9
+boom 1.055 0.9
+snap 1.055 0.8
+whoosh 1.95 0.9
+swish 2.58 0.9
+ping 3.51 0.55
+snap 3.51 0.5
+whoosh 4.15 0.9
+pop 4.75 0.8
+thud 4.82 1.0
+riser 6.30 1.0
+pop 6.72 0.7
+pop 7.21 0.7
+pop 7.69 0.7
+pop 8.18 0.7
+whoosh 8.48 0.7
+boom 8.90 1.0
+crash 8.90 0.8
+snap 8.90 0.9
+pop 8.97 0.6
+pop 9.03 0.6
+pop 9.10 0.6
+pop 9.16 0.6
+snap 9.04 0.6
+whoosh 10.75 0.9
+pop 11.05 0.8
+pop 11.40 0.8
+whoosh 12.35 0.9
+snap 12.60 0.6
+click 12.75 0.6
+click 12.86 0.6
+click 12.98 0.6
+click 13.07 0.6
+pop 13.16 0.9
+click 13.71 0.7
+click 13.76 0.7
+boom 14.60 0.8
+snap 14.60 0.6
+pop 14.75 0.6
+ping 15.10 0.5
+thud 15.35 0.5
+thud 16.15 0.5
+thud 16.95 0.5
+ping 17.40 0.35"
+DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 out/dermavia-b3-v2.mp4)
+in=(-f lavfi -i "anullsrc=r=$SR:cl=stereo"); f=""; lab="[0:a]"; n=1
+while read name st gain; do ms=$(awk "BEGIN{print int($st*1000)}")
+  in+=(-i $D/$name.wav); f+="[$n:a]volume=$gain,adelay=${ms}|${ms}[h$n];"; lab+="[h$n]"; n=$((n+1)); done <<< "$CUES"
+f+="${lab}amix=inputs=$n:normalize=0,atrim=0:$DUR[o]"
+ffmpeg -y -loglevel error "${in[@]}" -filter_complex "$f" -map "[o]" music/sfx_v2.wav
+echo "wrote music/sfx_v2.wav ($DUR s, $((n-1)) cues)"

@@ -57,3 +57,5 @@ npm run render                   # → out/dermavia-b3-anime.mp4
 - `npm run render:v2`: يطلع `out/dermavia-b3-v2.mp4`، و`./sfx.sh` يضيف ضربات مصنّعة على الموسيقى، وبعدين:
   `VIDEO=out/dermavia-b3-v2.mp4 ./mix.sh --music-only music/music_v2.wav`
 - واقي الشمس انشال من v2 (لقطة 13–15.5 ث صارت بس "مرة أو مرتين باليوم").
+- v2 صار 18 ث بدون موسيقى: انتقالات (سحبة/دائرة)، حركة كاميرا وجزيئات بكل لقطة، ومؤثرات صوتية بس.
+  `npm run render:v2 && ./sfx.sh && VIDEO=out/dermavia-b3-v2.mp4 ./mix.sh --music-only music/sfx_v2.wav`
