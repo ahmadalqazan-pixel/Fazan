@@ -50,7 +50,7 @@ function txt(s,x,y,size,o={}){
 function pack(cx,top,w){ const h=w*PACK.height/PACK.width; ctx.drawImage(PACK,cx-w/2,top,w,h); return h; }
 
 // ---------- static seeded data
-const R1=rng(11), PORES=[]; for(let i=0;i<70;i++){ const x=R1()*W, y=R1()*1500, big=R1()<0.35; PORES.push({x,y,r:big?14+R1()*16:5+R1()*6,big,fl:R1()}); }
+const R1=rng(11), PORES=[]; for(let i=0;i<90;i++){ const x=R1()*W, y=R1()*1950, big=R1()<0.35; PORES.push({x,y,r:big?14+R1()*16:5+R1()*6,big,fl:R1()}); }
 const R2=rng(5), FLAKES=[]; for(let i=0;i<34;i++){ const a=R2()*Math.PI*2, d=Math.sqrt(R2())*250; FLAKES.push({x:540+Math.cos(a)*d,y:820+Math.sin(a)*d,s:16+R2()*26,rot:R2()*3,vy:-(300+R2()*500),vx:(R2()-.5)*500}); }
 const ING=['سالسليك','أزيليك','زنك','نياسيناميد'];
 
@@ -68,7 +68,6 @@ function sHook(t){   // 0–2.4  macro skin, zero lead-in, two slams
   }
   ctx.restore();
   const v=ctx.createRadialGradient(540,800,350,540,800,1250); v.addColorStop(0,'rgba(14,20,32,0)'); v.addColorStop(1,'rgba(14,20,32,0.85)'); ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='rgba(14,20,32,0.92)'; ctx.fillRect(0,SAFE,W,H-SAFE);
   txt('الرأس الأسود…',540+sx,560+sy,150,{plate:P.night,scale:slamS(t,0,1.15,0.1),maxW:760});
   txt('من الجلد الميت',540+sx,800+sy,120,{plate:P.accent,scale:slamS(t,1.15,1.5,0.12),maxW:860});
 }
@@ -117,8 +116,7 @@ function sBuild(t){    // 7.6–10.7 drop charges with the four ingredients, fal
     txt(s,x,y,52,{plate:P.navy,color:P.accentHi,scale:slamS(t,t0,1.6)*(1-pull*0.85),alpha:1-pull*0.9}); });
   ctx.restore();
   // skin target
-  ctx.save(); ctx.beginPath(); ctx.rect(0,0,W,SAFE); ctx.clip(); const sg=ctx.createRadialGradient(540,1250,40,540,1900,760); sg.addColorStop(0,P.skinHi); sg.addColorStop(.5,P.skin); sg.addColorStop(1,P.skinSh); ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(540,1940,760,0,7); ctx.fill(); ctx.restore();
-  ctx.fillStyle=P.night; ctx.fillRect(0,SAFE,W,H-SAFE);
+  ctx.save(); const sg=ctx.createRadialGradient(540,1250,40,540,1900,760); sg.addColorStop(0,P.skinHi); sg.addColorStop(.5,P.skin); sg.addColorStop(1,P.skinSh); ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(540,1940,760,0,7); ctx.fill(); ctx.restore();
 }
 function sImpact(t){   // 10.7–13.0 ★ drop hits, 4 names burst
   const u=t-10.7; const [sx,sy]=shake(t,10.7,0.3,30);
