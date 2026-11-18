@@ -1,6 +1,7 @@
 Dermavia · Dark Spots — Scratchboard Long Take (26 s, 1080×1920, 30 fps)
 
 Product photo (assets/product.jpg): supplied by the client, Dermavia; used with their permission.
+The carved carton and bottle labels are redrawn from that photo.
 Dermavia name and "D" mark: the client's own brand.
 
 Picture: made entirely in code (three.js r170, canvas 2D), rendered headless. No generated images, no stock footage.
@@ -9,9 +10,10 @@ Style: "Scratchboard Long Take" from the Lemo-Opuscar style library, print-pass 
 Fonts (SIL Open Font License 1.1, texts in fonts/):
   Noto Naskh Arabic, Bold instance — Google Fonts, github.com/google/fonts/tree/main/ofl/notonaskharabic
   Noto Serif, Bold instance — Google Fonts, github.com/google/fonts/tree/main/ofl/notoserif
+  Noto Sans, SemiBold and Regular instances (the pack's labels) — Google Fonts, github.com/google/fonts/tree/main/ofl/notosans
 
 Music: original score, sampled instruments (CC0 1.0):
-  VS Chamber Orchestra: Community Edition (Versilian Studios) — cellos, contrabass, contrabass pizzicato, horn, timpani
+  VS Chamber Orchestra: Community Edition (Versilian Studios) — cellos, violins, contrabass, contrabass pizzicato, horn, timpani
   Versilian Community Sample Library (Versilian Studios) — harp, bowed vibraphone, glockenspiel
 
-Sound effects: synthesised procedurally (knife cuts, seals, steps, door, birds, steam, ink, drip, paper tear). No recordings.
+Sound effects: synthesised procedurally (knife cuts, seals, birds, the sun's shimmer, ink, the pack set down, paper tear). No recordings.

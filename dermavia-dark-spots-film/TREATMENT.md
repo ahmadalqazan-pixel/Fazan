@@ -111,24 +111,30 @@ Mix: music under the world, the print sounds loudest, −16 LUFS master (−14 a
 - **Length:** kept as written. If the first render feels rushed in shots 2–3, cut the second light pulse (10.7 s) first.
 - **Storyboard:** approved in words. Go straight to style frames → production.
 
-## 11. As built (2026-11-18)
+## 11. Version 2 (2026-11-18), after the first cut was rated 3/10
 
-Rendered in this folder with `build.sh` (Lemo-Opuscar library, three.js, headless Chrome; ffmpeg 6 works through `tools/master.sh`). Timings moved slightly from the beat sheet above so every line passes the reading-time check (each line held for at least its characters ÷ 15 + 1.5 s):
+Same style, rebuilt. What changed and why:
 
-| s | As built |
+- **A face first.** The take opens on her carved profile at dawn, filling the frame against the Baghdad roofline; the hook is cut into the sky above her and the ❌ lands on the downbeat of bar 2 (1.875 s).
+- **Real skin.** The sun's rays fall on her own cheek; the camera pushes into it, the spots spread there on two pulses of light, and the cause is cut into the spot's own ink. (Replaces the abstract skin landscape and the carved stone.)
+- **The pack as the hero.** The camera dives into the ink, which is carved open row by row onto the carton and the pump bottle, their labels redrawn from the client's pack and filling the frame; the four ingredients and the line under them are cut into the shadowed wall behind, one per beat. (Replaces the bathroom shelf and the small bottle.)
+- **Three places, not five.** Face → cheek → pack → sky. Score at 96 bpm in 3/4, with a string stab on frame one, true silence before the timpani, and A major from the reveal on.
+- **Longer ending.** The sheet peels to the product photo with the call to action printed under it, held 3 s.
+
+| s | Beat |
 |---|---|
-| 0.15–1.8 | Hook cut right to left in two lines: **هاي الغلطة** / **تخلي البقع تغمق** |
-| 2.14 | ❌ seal, on the downbeat of bar 2 (was 2.4) |
-| 4.85–6.6 | Door opens, she walks out, raises a hand against the sun |
-| 5.3–6.2 | Board cut in two lines (was 5.8), holds to 8.0 |
-| 7.0–7.6 | The ray of sun reaches her face; steam whiteout 7.85–8.35 |
-| 9.5 / 10.7 | Two pulses: the pools spread, their rings run outward |
-| 11.0–11.95 | Stone cut in three lines: **الشمس ←** / **ميلانين أكثر ←** / **بقعة أغمق** (was 11.5) |
-| 13.6–14.0 | Silence; timpani at 14.0; through the pore-arch at 14.22 |
-| 15.43 / 16.14 / 16.86 / 17.57 | The four tiles, one per beat; the strip **يقللون إنتاج الصبغة** at 18.29 |
-| 20.9–21.4 | Up to the window and out through a paper whiteout over the rooftops by day |
-| 21.45 / 21.95 / 22.45 | Closing lines: **من داخل عيادة ديرمافيا** / **اطلب عبر الواتساب** / **أو الدايركت** |
-| 24.0 | D seal |
-| 24.7–25.1 | Peel from the bottom-left to the product photo (was 24.4); hold to 26.0 |
+| 0.1–1.6 | Hook: **هاي الغلطة** / **تخلي البقع تغمق**; ❌ at 1.875 |
+| 1.9–3.6 | The sun rises left of her face; rays reach her cheek from 3.0 |
+| 4.0–4.8 | Cut into the sky: **كريم تفتيح…** / **بلا واقي شمس**, held to 7.0 |
+| 6.6–7.9 | Push into her cheek |
+| 7.9 / 9.0 | Two pulses of sun: the spots spread |
+| 8.35–9.55 | Cut into the spot's ink: **الشمس ←** / **ميلانين أكثر ←** / **بقعة أغمق** |
+| 11.3–11.9 | Dive into the ink; silence 11.55–11.9; timpani |
+| 11.9–12.5 | The ink carved open onto the pack |
+| 13.125–15.0 | **Alpha-arbutin · Vitamin C · Lactic acid · Panthenol**, one per beat; **يقللون إنتاج الصبغة** at 15.625 |
+| 18.35–19.15 | Rise into the sky |
+| 19.15–20.45 | **من داخل عيادة ديرمافيا** / **اطلب عبر الواتساب** / **أو الدايركت** |
+| 21.56 | D seal |
+| 22.4–22.85 | Peel from the bottom-left to the product photo, with **اطلب عبر الواتساب أو الدايركت** under it; hold to 26.0 |
 
-Files: `index.html` → `scene.js` (world, camera, print pass, `TEXTS`, `EV`), `timeline.js`, `look.js` (materials), `textures.js` (palms, the woman, the sun), `props.js` (plates, panels, seals, label, notice), `mix.py` (score and foley), `tools/master.sh`, `tools/safezone.mjs`, `CREDITS`.
+Files: `index.html` → `scene.js` (world, camera, print pass, `TEXTS`, `EV`), `timeline.js`, `look.js`, `face.js` (her profile, the cheek shader, the sunlight), `product.js` (carton and bottle), `textures.js`, `props.js`, `mix.py`, `build.sh`, `tools/master.sh`, `tools/safezone.mjs`, `CREDITS`.

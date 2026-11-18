@@ -107,14 +107,14 @@ export const skinMat = new THREE.ShaderMaterial({
 // ------------------------------------------------------------------ the sky: knife cuts in direction space, with plates of type
 // six plates: tPk (RGBA canvas: paper letters, or a red seal), uRk = (az0, el0, az1, el1) radians, uAk the reveal 0..1,
 // uMk: 0 = an ink block cleared out of the sky with letters cut right to left; 1 = a seal pressed at once (no block)
-const PLATE_U = {}; for (let k = 0; k < 6; k++) { PLATE_U['tP' + k] = { value: null }; PLATE_U['uR' + k] = { value: new THREE.Vector4() }; PLATE_U['uA' + k] = { value: 0 }; PLATE_U['uM' + k] = { value: 0 }; }
+const PLATE_U = {}; for (let k = 0; k < 8; k++) { PLATE_U['tP' + k] = { value: null }; PLATE_U['uR' + k] = { value: new THREE.Vector4() }; PLATE_U['uA' + k] = { value: 0 }; PLATE_U['uM' + k] = { value: 0 }; }
 export const skyMat = new THREE.ShaderMaterial({
   uniforms: { ...U, uFront: { value: -1 }, uStars: { value: 1 }, uDense: { value: 0 }, ...PLATE_U },
   side: THREE.BackSide, depthWrite: false,
   vertexShader: VS_WORLD,
   fragmentShader: GLSL_HASH + `
     uniform vec3 uInk, uPaper, uYellow, uCam, uSun; uniform float uFront, uStars, uDense, uWarm; varying vec3 vW;
-    ${[0, 1, 2, 3, 4, 5].map(k => `uniform sampler2D tP${k}; uniform vec4 uR${k}; uniform float uA${k}, uM${k};`).join('\n')}
+    ${[0, 1, 2, 3, 4, 5, 6, 7].map(k => `uniform sampler2D tP${k}; uniform vec4 uR${k}; uniform float uA${k}, uM${k};`).join('\n')}
     vec3 plate(vec3 col, sampler2D tex, vec4 rect, float amt, float mode, float az, float el){
       if (amt <= 0.) return col;
       vec2 uv = vec2((az - rect.x)/(rect.z - rect.x), (el - rect.y)/(rect.w - rect.y));
@@ -177,7 +177,7 @@ export const skyMat = new THREE.ShaderMaterial({
         vec3 lineCol = mix(uPaper, uYellow, clamp(glow*1.3, 0., .85));
         col = mix(uInk, lineCol, k);
       }
-      ${[0, 1, 2, 3, 4, 5].map(k => `col = plate(col, tP${k}, uR${k}, uA${k}, uM${k}, az, el);`).join('\n      ')}
+      ${[0, 1, 2, 3, 4, 5, 6, 7].map(k => `col = plate(col, tP${k}, uR${k}, uA${k}, uM${k}, az, el);`).join('\n      ')}
       gl_FragColor = vec4(col, 1.);
     }`,
 });

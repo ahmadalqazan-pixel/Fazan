@@ -90,6 +90,12 @@ export function panelCanvas(spec) {
 }
 function ground(g, spec, R) {
   const { W, H } = spec;
+  if (spec.ground === 'none') { g.clearRect(0, 0, W, H); return; }
+  if (spec.ground === 'pool') {   // the spot's own ink: a ragged blot filling the panel
+    g.clearRect(0, 0, W, H); g.fillStyle = INK; g.beginPath();
+    for (let i = 0; i <= 96; i++) { const a = i / 96 * Math.PI * 2, r = 1 + .06 * Math.sin(a * 5 + 1) + .04 * Math.sin(a * 11); g.lineTo(W / 2 + Math.cos(a) * W * .5 * r * .98, H / 2 + Math.sin(a) * H * .5 * r * .98); }
+    g.fill(); return;
+  }
   g.fillStyle = INK; g.fillRect(0, 0, W, H);
   if (spec.ground === 'wood') {
     for (let y = 8; y < H; y += 10 + R() * 12) { let x = -20; while (x < W) { const L = 40 + R() * 220; if (R() < .45) cut(g, x, y, x + L, y + (R() - .5) * 3, 2 + R() * 2.5, R, PAPER, .9); x += L + 20 + R() * 120; } }
@@ -160,7 +166,7 @@ export function labelCanvas() {
 }
 
 // ------------------------------------------------------------------ the pasted notice under the peeled sheet (screen sized)
-export function noticeCanvas(img, W, H) {
+export function noticeCanvas(img, W, H, cta) {
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d'), R = mulberry(88);
   g.fillStyle = PAPER; g.fillRect(0, 0, W, H);
@@ -168,7 +174,7 @@ export function noticeCanvas(img, W, H) {
   for (let i = 0; i < 2400; i++) { g.fillStyle = `rgba(22,23,27,${.02 + R() * .04})`; g.fillRect(R() * W, R() * H, 1 + R() * 3, 1); }
   for (let i = 0; i < 26; i++) { const x = R() * W, y = R() * H; cut(g, x, y, x + 20 + R() * 60, y + (R() - .5) * 4, 2.5, R, INK, .9); }
   // the photo, pasted at a slight angle with a hard ink edge, two hatched tape strips over its corners
-  const pw = W * .76, ph = pw * img.height / img.width, px = W * .46, py = H * .43, rot = -.025;
+  const pw = W * .64, ph = pw * img.height / img.width, px = W * .45, py = 240 + ph / 2, rot = -.02;
   g.save(); g.translate(px, py); g.rotate(rot);
   g.fillStyle = 'rgba(22,23,27,.28)'; g.fillRect(-pw / 2 + 10, -ph / 2 + 14, pw, ph);
   g.drawImage(img, -pw / 2, -ph / 2, pw, ph);
@@ -183,5 +189,7 @@ export function noticeCanvas(img, W, H) {
     g.restore();
   }
   g.restore();
+  // the call to action, printed in ink under the photo
+  if (cta) { g.fillStyle = INK; g.font = `700 ${cta.px}px ${AR}`; g.direction = 'rtl'; g.textAlign = 'right'; g.fillText(cta.text, cta.x, cta.y); }
   return c;
 }
