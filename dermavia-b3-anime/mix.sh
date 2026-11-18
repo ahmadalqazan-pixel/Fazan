@@ -11,12 +11,23 @@ DUR=20
 
 [ -f "$VIDEO" ] || { echo "missing $VIDEO — run: npm run render"; exit 1; }
 
+GAP=0.08   # min silence between lines; last line must end by DUR-0.05
+mkdir -p vo/fit
 inputs=(); filters=(); labels=""
 for i in 1 2 3 4 5; do
   f=$(ls vo/vo$i.* 2>/dev/null | head -1 || true)
   [ -n "$f" ] || { echo "missing vo/vo$i.*"; exit 1; }
-  ms=$(awk "BEGIN{print int(${STARTS[$((i-1))]}*1000)}")
-  inputs+=(-i "$f")
+  start=${STARTS[$((i-1))]}
+  if [ $i -lt 5 ]; then win=$(awk "BEGIN{print ${STARTS[$i]}-$start-$GAP}"); else win=$(awk "BEGIN{print $DUR-0.05-$start}"); fi
+  # trim leading/trailing silence, then speed up (pitch kept) only if the line overruns its slot
+  ffmpeg -y -loglevel error -i "$f" -af "aformat=sample_rates=48000:channel_layouts=stereo,silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse" vo/fit/t$i.wav
+  len=$(ffprobe -v error -show_entries format=duration -of csv=p=0 vo/fit/t$i.wav)
+  tempo=$(awk "BEGIN{t=$len/$win; print (t>1?t:1)}")
+  ffmpeg -y -loglevel error -i vo/fit/t$i.wav -af "atempo=$tempo" vo/fit/vo$i.wav
+  printf 'vo%s  start %5.2fs  speech %4.2fs  slot %4.2fs  tempo x%.2f\n' $i $start $len $win $tempo
+  awk "BEGIN{exit !($tempo>1.25)}" && echo "  ! vo$i needs >1.25x — consider a shorter read"
+  ms=$(awk "BEGIN{print int($start*1000)}")
+  inputs+=(-i vo/fit/vo$i.wav)
   filters+=("[$((i-1)):a]aformat=sample_rates=48000:channel_layouts=stereo,adelay=${ms}|${ms}[v$i]")
   labels+="[v$i]"
 done
