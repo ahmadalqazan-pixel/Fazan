@@ -111,6 +111,24 @@ Mix: music under the world, the print sounds loudest, −16 LUFS master (−14 a
 - **Length:** kept as written. If the first render feels rushed in shots 2–3, cut the second light pulse (10.7 s) first.
 - **Storyboard:** approved in words. Go straight to style frames → production.
 
-## 11. Rendering
+## 11. As built (2026-11-18)
 
-This session couldn't render (ffmpeg 6 instead of 7+, no package installs). To produce: on a computer with Claude Code, run the lemo-opuscar skill, attach this folder (`TREATMENT.md` + `assets/product.jpg`), and ask it to build the film from the treatment in the `printed-long-take` style.
+Rendered in this folder with `build.sh` (Lemo-Opuscar library, three.js, headless Chrome; ffmpeg 6 works through `tools/master.sh`). Timings moved slightly from the beat sheet above so every line passes the reading-time check (each line held for at least its characters ÷ 15 + 1.5 s):
+
+| s | As built |
+|---|---|
+| 0.15–1.8 | Hook cut right to left in two lines: **هاي الغلطة** / **تخلي البقع تغمق** |
+| 2.14 | ❌ seal, on the downbeat of bar 2 (was 2.4) |
+| 4.85–6.6 | Door opens, she walks out, raises a hand against the sun |
+| 5.3–6.2 | Board cut in two lines (was 5.8), holds to 8.0 |
+| 7.0–7.6 | The ray of sun reaches her face; steam whiteout 7.85–8.35 |
+| 9.5 / 10.7 | Two pulses: the pools spread, their rings run outward |
+| 11.0–11.95 | Stone cut in three lines: **الشمس ←** / **ميلانين أكثر ←** / **بقعة أغمق** (was 11.5) |
+| 13.6–14.0 | Silence; timpani at 14.0; through the pore-arch at 14.22 |
+| 15.43 / 16.14 / 16.86 / 17.57 | The four tiles, one per beat; the strip **يقللون إنتاج الصبغة** at 18.29 |
+| 20.9–21.4 | Up to the window and out through a paper whiteout over the rooftops by day |
+| 21.45 / 21.95 / 22.45 | Closing lines: **من داخل عيادة ديرمافيا** / **اطلب عبر الواتساب** / **أو الدايركت** |
+| 24.0 | D seal |
+| 24.7–25.1 | Peel from the bottom-left to the product photo (was 24.4); hold to 26.0 |
+
+Files: `index.html` → `scene.js` (world, camera, print pass, `TEXTS`, `EV`), `timeline.js`, `look.js` (materials), `textures.js` (palms, the woman, the sun), `props.js` (plates, panels, seals, label, notice), `mix.py` (score and foley), `tools/master.sh`, `tools/safezone.mjs`, `CREDITS`.
