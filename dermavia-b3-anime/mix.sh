@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Mix Ahmed's VO (vo/vo1..vo5, any audio format) onto the silent render -> final.mp4
+# Usage: ./mix.sh [music.wav]      (music optional; sits ~10 dB under the voice)
+# Start times come from HANDOFF.md. Output normalised to -14 LUFS, true peak -1.5 dBTP.
+set -euo pipefail
+cd "$(dirname "$0")"
+VIDEO=out/dermavia-b3-anime.mp4
+MUSIC=${1:-}
+STARTS=(3.5 7.9 10.0 15.0 17.5)   # vo1..vo5, seconds
+DUR=20
+
+[ -f "$VIDEO" ] || { echo "missing $VIDEO — run: npm run render"; exit 1; }
+
+inputs=(); filters=(); labels=""
+for i in 1 2 3 4 5; do
+  f=$(ls vo/vo$i.* 2>/dev/null | head -1 || true)
+  [ -n "$f" ] || { echo "missing vo/vo$i.*"; exit 1; }
+  ms=$(awk "BEGIN{print int(${STARTS[$((i-1))]}*1000)}")
+  inputs+=(-i "$f")
+  filters+=("[$((i-1)):a]aformat=sample_rates=48000:channel_layouts=stereo,adelay=${ms}|${ms}[v$i]")
+  labels+="[v$i]"
+done
+filters+=("${labels}amix=inputs=5:normalize=0,apad,atrim=0:${DUR}[voice]")
+
+if [ -n "$MUSIC" ]; then
+  inputs+=(-i "$MUSIC")
+  filters+=("[5:a]aformat=sample_rates=48000:channel_layouts=stereo,volume=-10dB,apad,atrim=0:${DUR},afade=t=out:st=$((DUR-1)):d=1[mus]")
+  filters+=("[voice][mus]amix=inputs=2:normalize=0[pre]")
+else
+  filters+=("[voice]anull[pre]")
+fi
+filters+=("[pre]loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[out]")
+
+IFS=';'; fc="${filters[*]}"; unset IFS
+ffmpeg -y -loglevel error "${inputs[@]}" -filter_complex "$fc" -map "[out]" -t $DUR mix.wav
+ffmpeg -y -loglevel error -i "$VIDEO" -i mix.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart final.mp4
+ffprobe -v error -show_entries format=duration -of default=nw=1 final.mp4
+echo "wrote final.mp4"
