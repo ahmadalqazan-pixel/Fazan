@@ -56,3 +56,4 @@ npm run render                   # → out/dermavia-b3-anime.mp4
 - `v2/index.html`: تصميم جديد أبسط (كتابة كبيرة + أشكال)، هوك من أول فريم، والقطرة تنزل على دروب الموسيقى (10.7 ث).
 - `npm run render:v2`: يطلع `out/dermavia-b3-v2.mp4`، و`./sfx.sh` يضيف ضربات مصنّعة على الموسيقى، وبعدين:
   `VIDEO=out/dermavia-b3-v2.mp4 ./mix.sh --music-only music/music_v2.wav`
+- واقي الشمس انشال من v2 (لقطة 13–15.5 ث صارت بس "مرة أو مرتين باليوم").
