@@ -165,9 +165,18 @@ function sEnd(t){      // 17.3–20 end card
 const S=[[0,2.2,sHook,0,2.4,null],[2.2,4.4,sSolution,2.4,5.0,'L'],[4.4,6.4,sProduct,5.0,7.6,'U'],[6.4,8.9,sBuild,7.6,10.7,'Z'],
          [8.9,11.0,sImpact,10.7,13.0,null],[11.0,12.6,sRoutine,13.0,14.6,'L'],[12.6,14.6,sAsk,15.5,17.3,'R'],[14.6,18.0,sEnd,17.3,20.0,null]];
 const DUR=18, TR=0.2;
+// burned-in captions (bottom 20%): Ahmed's approved VO lines / catalog text only
+const CAPS=[[0.15,2.2,'الرأس الأسود… من الجلد الميت'],[2.3,4.4,'فالحل: تشيل الميت… وتحمي الحي.'],[4.5,6.4,'من داخل عيادة ديرمافيا'],
+  [6.5,11.0,'أربعة بعبوة وحدة.'],[11.1,12.6,'مرة أو مرتين باليوم بعد الغسول'],[12.7,14.6,'ما تعرف إذا يناسبك؟ دز نوع بشرتك واتساب'],[14.7,18.0,'وصيدلاني يجاوبك مجاناً.']];
+function captions(t){ for(const [a,b,c] of CAPS){ if(t<a||t>=b) continue; const k=eo(seg(t,a,a+0.15)), out=1-seg(t,b-0.08,b);
+  ctx.save(); ctx.globalAlpha=Math.min(k,out); ctx.translate(0,(1-k)*24); ctx.font='700 50px AR'; ctx.direction='rtl'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  let fs=50, tw=ctx.measureText(c).width; if(tw>900){ fs=50*900/tw; ctx.font=`700 ${fs}px AR`; tw=ctx.measureText(c).width; }
+  ctx.fillStyle='rgba(14,20,32,0.78)'; rr(540-tw/2-34,1690-fs*0.95,tw+68,fs*1.9,fs*0.6); ctx.fill();
+  ctx.fillStyle=P.light; ctx.fillText(c,540,1690+fs*0.06); ctx.restore(); } }
 function sceneAt(i,t){ const [a,b,f,oa,ob]=S[i]; const k=clamp((t-a)/(b-a),0,0.9999); NOW=t;
   const z=1+0.05*k; ctx.save(); ctx.translate(540,800); ctx.scale(z,z); ctx.translate(-540,-800); f(oa+k*(ob-oa)); ctx.restore(); }
-function draw(t){ ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1; t=clamp(t,0,DUR-1e-4);
+function draw(t){ ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1; t=clamp(t,0,DUR-1e-4); scene(t); ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1; captions(t); }
+function scene(t){
   let i=S.findIndex(q=>t>=q[0]&&t<q[1]); if(i<0) i=S.length-1;
   const a=S[i][0], tr=S[i][5], k=(t-a)/TR;
   if(!tr||k>=1){ sceneAt(i,t); return; }
